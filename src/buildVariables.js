@@ -144,12 +144,28 @@ const buildCreateVariables = (resource, aorFetchType, params, queryType) => {
   return params.data;
 };
 
+const castIdType = (params, resource) => {
+  const id = params.id
+  const target = params.target
+
+  if (!id) return
+
+  const key = target ?? "id"
+  const typedParam = resource.type.fields.find(f => key === f.name)
+  if (!typedParam) return
+
+  if (getFinalType(typedParam.type).name === "Int") {
+    params[key] = parseInt(params[key])
+  }
+}
+
 export default (introspectionResults) => (
   resource,
   aorFetchType,
   params,
   queryType
 ) => {
+  castIdType(params, resource)
   switch (aorFetchType) {
     case GET_LIST:
       return buildGetListVariables(introspectionResults)(
