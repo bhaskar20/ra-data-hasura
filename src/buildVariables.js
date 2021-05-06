@@ -65,7 +65,7 @@ const buildGetListVariables = (introspectionResults) => (
     } else {
       let [keyName, operation = ''] = key.split('@');
       const field = resource.type.fields.find((f) => f.name === keyName);
-      if (field ) {
+      if (field) {
         switch (getFinalType(field.type).name) {
           case 'String':
             operation = operation || '_ilike';
@@ -84,14 +84,12 @@ const buildGetListVariables = (introspectionResults) => (
     }
     return [...acc, filter];
   };
-  const andFilters = Object.keys(filterObj).reduce(
-    filterReducer(filterObj),
-    customFilters
-  ).filter(Boolean);
-  const orFilters = Object.keys(orFilterObj).reduce(
-    filterReducer(orFilterObj),
-    []
-  ).filter(Boolean);
+  const andFilters = Object.keys(filterObj)
+    .reduce(filterReducer(filterObj), customFilters)
+    .filter(Boolean);
+  const orFilters = Object.keys(orFilterObj)
+    .reduce(filterReducer(orFilterObj), [])
+    .filter(Boolean);
 
   result['where'] = {
     _and: andFilters,
@@ -145,19 +143,19 @@ const buildCreateVariables = (resource, aorFetchType, params, queryType) => {
 };
 
 const castIdType = (params, resource) => {
-  const id = params.id
-  const target = params.target
+  const id = params.id;
+  const target = params.target;
 
-  if (!id) return
+  if (!id) return;
 
-  const key = target ?? "id"
-  const typedParam = resource.type.fields.find(f => key === f.name)
-  if (!typedParam) return
+  const key = target || 'id';
+  const typedParam = resource.type.fields.find((f) => key === f.name);
+  if (!typedParam) return;
 
-  if (getFinalType(typedParam.type).name === "Int") {
-    params[key] = parseInt(params[key])
+  if (getFinalType(typedParam.type).name === 'Int') {
+    params[key] = parseInt(params[key]);
   }
-}
+};
 
 export default (introspectionResults) => (
   resource,
@@ -165,7 +163,7 @@ export default (introspectionResults) => (
   params,
   queryType
 ) => {
-  castIdType(params, resource)
+  castIdType(params, resource);
   switch (aorFetchType) {
     case GET_LIST:
       return buildGetListVariables(introspectionResults)(
